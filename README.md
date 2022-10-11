@@ -56,6 +56,13 @@ Greenwood builds upon the battle-tested Gnosis Safe Vault multisignature wallet 
 
 #### Greenwood Gnosis Module
 The Module proxy contract is deployed and the Gnosis Vault enables the Module upon instantiation. Then, the Module contract can make calls to the Gnosis Vault via `execTransactionFromModule()`. Because the Gnosis Vault enabled the module, the execution of the `calldata` can be performed on the Gnosis Vault without requiring a threshold of signers to be met. The implementation of the Module can then add on its own custom functionality as a layer on top of the Gnosis Vault.
+
+#### Greenwood Guard
+The Gnosis Vault and the Greenwood Module contain mulitple invariants that need to be preserved. In particular, All Greenwood Multisigs must remain at a 2/3 signer threshold. To solve for this, a guard contract is used to check transactions before execution on both the Gnosis Vault and the Greenwood Module. All Greenwood Multisigs enable the guard contract to prevent changes in threshold size and in the number of signers on a vault. 
+
+#### Greenwood Multisig Factory
+The factory contract is the gateway to spinning up a Greenwood Multisig for a set of clients and wealth managers. The factory contains functionality to deploy a new Gnosis Vault, deploy and enable a Greenwood Gnosis Module Proxy contract, and then set the Greenwood Guard on the Gnosis Vault all in one transaction.
+
 <p align="center"> 
     <img 
         src="https://user-images.githubusercontent.com/8098163/193352002-ce32eb9a-9a82-4bca-8b8e-07a21de3ecd4.png"
