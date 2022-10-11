@@ -65,8 +65,8 @@ The factory contract is the gateway to spinning up a Greenwood Multisig for a se
 
 <p align="center"> 
     <img 
-        src="https://user-images.githubusercontent.com/8098163/193352002-ce32eb9a-9a82-4bca-8b8e-07a21de3ecd4.png"
-        alt="Module Diagram" 
+        src="https://user-images.githubusercontent.com/8098163/195191803-2bd994d5-b311-4a4e-bf07-f84034285ded.png"
+        alt="Multisig Diagram" 
         height="70%"
         width="100%">
 </p>
