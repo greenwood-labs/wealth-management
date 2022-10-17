@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
 
-import "src/GreenwoodGuard.sol";
-import "src/GreenwoodModule.sol";
-import "src/GreenwoodMultisigFactory.sol";
-import "src/ModuleProxyFactory.sol";
+import "src/multisig/GreenwoodGuard.sol";
+import "src/multisig/GreenwoodModule.sol";
+import "src/multisig/GreenwoodMultisigFactory.sol";
+import "src/multisig/ModuleProxyFactory.sol";
 
 /// @title Deploy Multisig - Deploys the Greenwood Multisig architecture
 contract DeployMultisig is Script {

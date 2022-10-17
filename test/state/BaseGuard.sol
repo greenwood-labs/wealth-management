@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "safe-contracts/base/GuardManager.sol";
 import "safe-contracts/common/StorageAccessible.sol";
 
-import "src/GreenwoodGuard.sol";
+import "src/multisig/GreenwoodGuard.sol";
 import "test/state/BaseGnosisSafe.sol";
 
 contract BaseGuard is BaseGnosisSafe {

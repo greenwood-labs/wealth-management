@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/access/AccessControl.sol";
 
-import "src/interfaces/IGnosisSafe.sol";
-import "src/interfaces/IGuard.sol";
+import "src/interfaces/Gnosis/IGnosisSafe.sol";
+import "src/interfaces/Gnosis/IGuard.sol";
 
 /// @title Greenwood Module - A module contract to grant the client superuser access to the multisig
 contract GreenwoodModule is AccessControl {

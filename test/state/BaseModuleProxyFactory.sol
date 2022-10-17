@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "src/GreenwoodModule.sol";
-import "src/ModuleProxyFactory.sol";
+import "src/multisig/GreenwoodModule.sol";
+import "src/multisig/ModuleProxyFactory.sol";
 import "test/state/BaseGuard.sol";
 
 contract BaseModuleProxyFactory is BaseGuard {

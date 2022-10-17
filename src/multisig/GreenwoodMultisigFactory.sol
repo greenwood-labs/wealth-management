@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import "safe-contracts/proxies/GnosisSafeProxyFactory.sol";
 
-import "src/interfaces/IGnosisSafe.sol";
-import "src/GreenwoodModule.sol";
-import "src/ModuleProxyFactory.sol";
+import "src/interfaces/Gnosis/IGnosisSafe.sol";
+import "src/multisig/GreenwoodModule.sol";
+import "src/multisig/ModuleProxyFactory.sol";
 
 /// @title Greenwood Multisig Factory - A factory contract to deploy greenwood multisig instances
 contract GreenwoodMultisigFactory {

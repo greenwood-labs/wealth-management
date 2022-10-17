@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "src/GreenwoodMultisigFactory.sol";
+import "src/multisig/GreenwoodMultisigFactory.sol";
 import "test/state/BaseModuleProxyFactory.sol";
 
 contract BaseMultisigFactory is BaseModuleProxyFactory {

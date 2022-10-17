@@ -19,7 +19,6 @@ clean  :; forge clean
 snapshot :; forge snapshot
 fmt    :; forge fmt
 
-deploy-mainnet :; forge script script/Deploy.s.sol:DeployMultisig -f ${RPC_MAINNET} --slow --private-key ${DEPLOYER_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast --verify -vvvv
-
+deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig -f ${RPC_MAINNET} --slow --private-key ${DEPLOYER_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast --verify -vvvv
 # make sure to run `fork node` first
-deploy-local :; forge script script/Deploy.s.sol:DeployMultisig -f http://localhost:8545 --slow --private-key ${ANVIL_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast
+deploy-multisig-local :; forge script script/DeployMultisig.s.sol:DeployMultisig -f http://localhost:8545 --slow --private-key ${ANVIL_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast
