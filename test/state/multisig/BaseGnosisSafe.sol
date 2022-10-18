@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "forge-std/Test.sol";
-import "solmate/tokens/ERC20.sol";
 import "safe-contracts/GnosisSafe.sol";
 import "safe-contracts/proxies/GnosisSafeProxyFactory.sol";
 
+import "test/state/base/BaseFundedAccount.sol";
 import "test/utils/GnosisUtils.sol";
 
-contract BaseGnosisSafe is Test {
-    ERC20 public weth;
+contract BaseGnosisSafe is BaseFundedAccount {
     GnosisSafe public safe;
     GnosisSafeProxyFactory public safeFactory;
 
@@ -29,15 +27,15 @@ contract BaseGnosisSafe is Test {
     address public constant GNOSIS_SAFE_PROXY_FACTORY = 0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2;
     address public constant GNOSIS_SAFE_SINGLETON = 0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552;
     address public constant GNOSIS_SAFE_FALLBACK_HANDLER = 0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4;
-    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    function labelAddresses() public virtual {
+    function labelAddresses() public virtual override {
+        super.labelAddresses();
+
         vm.label(client0, "client0");
         vm.label(client1, "client1");
         vm.label(manager, "manager");
         vm.label(newOwner, "newOwner");
 
-        vm.label(address(weth), "WETH");
         vm.label(address(safe), "safe");
         vm.label(address(safeFactory), "safeFactory");
     }
@@ -67,13 +65,11 @@ contract BaseGnosisSafe is Test {
         );
     }
 
-    function setUp() public virtual {
+    function setUp() public virtual override {
+        super.setUp();
 
         // safe factory instance
         safeFactory = GnosisSafeProxyFactory(GNOSIS_SAFE_PROXY_FACTORY);
-
-        // weth instance
-        weth = ERC20(WETH);
 
         // assert safe factory was properly retrieved
         assertTrue(address(safeFactory) != address(0));

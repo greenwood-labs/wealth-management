@@ -22,3 +22,9 @@ fmt    :; forge fmt
 deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig -f ${RPC_MAINNET} --slow --private-key ${DEPLOYER_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast --verify -vvvv
 # make sure to run `fork node` first
 deploy-multisig-local :; forge script script/DeployMultisig.s.sol:DeployMultisig -f http://localhost:8545 --slow --private-key ${ANVIL_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast
+
+integration-test :; forge test \
+	--match-path test/Integration.t.sol \
+	--fork-url ${RPC_MAINNET} \
+	--fork-block-number ${FORKED_BLOCK_NUMBER} \
+	-vvvv

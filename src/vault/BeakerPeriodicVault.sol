@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "openzeppelin-contracts/utils/Strings.sol";
+
 import "src/interfaces/vault/IBeakerFactory.sol";
 import "src/interfaces/vault/IBeakerPeriodicVault.sol";
 import "src/interfaces/vault/IPeriodicStrategy.sol";
@@ -10,7 +12,7 @@ import "src/vault/base/Governed.sol";
 import "src/vault/BeakerERC20.sol";
 import "src/vault/BeakerStorage.sol";
 
-import "src/libraries/Strings.sol";
+import "src/libraries/Bytes32Strings.sol";
 import "src/libraries/BytesLib.sol";
 import "src/libraries/SafeERC20.sol";
 import "src/libraries/Wrapper.sol";
@@ -86,7 +88,7 @@ contract BeakerPeriodicVault is
 
         // Initialize ERC20 token
         __ERC20_init(
-            Strings.bytes32ToString(_params.toBytes32(0x70)),
+            Bytes32Strings.bytes32ToString(_params.toBytes32(0x70)),
             string(abi.encodePacked("BLP-", Strings.toString(vaultId))),
             18
         );
