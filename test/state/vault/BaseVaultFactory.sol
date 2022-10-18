@@ -23,6 +23,7 @@ contract BaseVaultFactory is BaseFundedAccount {
 
         vm.label(address(vaultFactory), "beakerFactory");
         vm.label(address(vaultTemplate), "vaultTemplate");
+        vm.label(governance, "governance");
     }
 
     function setUp() public virtual override {
@@ -35,6 +36,7 @@ contract BaseVaultFactory is BaseFundedAccount {
         vaultTemplate = new BeakerPeriodicVault(governance);
 
         // set vault implementation to the factory
+        vm.prank(governance);
         vaultFactory.setImplementation(VAULT_IMPL_ID, address(vaultTemplate));
 
         // label addresses

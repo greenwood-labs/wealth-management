@@ -14,6 +14,7 @@ import "src/vault/BeakerPeriodicVault.sol";
 import "src/libraries/Bytes32Strings.sol";
 
 contract BaseOpynStrategy is BaseVaultFactory {
+    OpynStrategy public strategyTemplate;
     OpynStrategy public strategy;
     BeakerPeriodicVault public vault;
     IController public gammaController;
@@ -33,8 +34,13 @@ contract BaseOpynStrategy is BaseVaultFactory {
     function labelAddresses() public virtual override {
         super.labelAddresses();
 
+        vm.label(address(strategyTemplate), "strategyTemplate");
         vm.label(address(strategy), "opynStrategy");
         vm.label(address(vault), "opynVault");
+        vm.label(address(gammaController), "gammaController");
+        vm.label(address(otokenFactory), "otokenFactory");
+        vm.label(address(marginPool), "marginPool");
+        vm.label(address(keeper), "keeper");
     }
 
     function setUp() public virtual override {
@@ -50,10 +56,13 @@ contract BaseOpynStrategy is BaseVaultFactory {
         marginPool = IMarginPool(MARGIN_POOL);
 
         // deploy the strategy template
-        strategy = new OpynStrategy(address(weth), governance);
+        strategyTemplate = new OpynStrategy(address(weth), governance);
+
+        // impersonate the governance account
+        vm.startPrank(governance);
 
         // set the strategy as an implementation on the factory
-        vaultFactory.setImplementation(OPYN_STRAT_IMPL_ID, address(strategy));
+        vaultFactory.setImplementation(OPYN_STRAT_IMPL_ID, address(strategyTemplate));
 
         // create the vault params
         bytes memory vaultParams = abi.encodePacked(
@@ -76,7 +85,14 @@ contract BaseOpynStrategy is BaseVaultFactory {
         );
 
         // deploy the vault and strategy contracts together
-        vaultFactory.deploy(VAULT_IMPL_ID, OPYN_STRAT_IMPL_ID, vaultParams, strategyParams);
+        (address _vault, address _strategy) = vaultFactory.deploy(VAULT_IMPL_ID, OPYN_STRAT_IMPL_ID, vaultParams, strategyParams);
+
+        // set vault and strategy contracts
+        vault = BeakerPeriodicVault(payable(_vault));
+        strategy = OpynStrategy(_strategy);
+
+        // stop the impersonation
+        vm.stopPrank();
 
         // label addresses
         labelAddresses();

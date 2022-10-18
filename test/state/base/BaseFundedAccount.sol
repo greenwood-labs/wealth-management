@@ -10,16 +10,16 @@ contract BaseFundedAccount is Test {
     ERC20 public usdc;
 
     // private keys
-    uint256 public privKey0 = 1;
-    uint256 public privKey1 = 2;
-    uint256 public privKey2 = 3;
-    uint256 public privKey3 = 4;
+    uint256 public privKeyUser0 = uint256(keccak256("privKey0"));
+    uint256 public privKeyUser1 = uint256(keccak256("privKey1"));
+    uint256 public privKeyUser2 = uint256(keccak256("privKey2"));
+    uint256 public privKeyUser3 = uint256(keccak256("privKey3"));
 
     // EOAs
-    address public user0 = vm.addr(privKey0);
-    address public user1 = vm.addr(privKey1);
-    address public user2 = vm.addr(privKey2);
-    address public user3 = vm.addr(privKey3);
+    address public user0 = vm.addr(privKeyUser0);
+    address public user1 = vm.addr(privKeyUser1);
+    address public user2 = vm.addr(privKeyUser2);
+    address public user3 = vm.addr(privKeyUser3);
 
     // contract addresses
     address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;

@@ -12,6 +12,7 @@ contract BaseMultisigFactory is BaseModuleProxyFactory {
         super.labelAddresses();
 
         vm.label(address(multisigFactory), "GreenwoodMultisigFactory");
+        vm.label(address(module), "GreenwoodModule");
     }
 
     function setUp() public virtual override {

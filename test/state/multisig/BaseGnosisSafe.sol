@@ -12,10 +12,10 @@ contract BaseGnosisSafe is BaseFundedAccount {
     GnosisSafeProxyFactory public safeFactory;
 
     // private keys
-    uint256 public privKeyClient0 = 1;
-    uint256 public privKeyClient1 = 2;
-    uint256 public privKeyManager = 3;
-    uint256 public privKeyNewOwner = 4;
+    uint256 public privKeyClient0 = uint256(keccak256("privKeyClient0"));
+    uint256 public privKeyClient1 = uint256(keccak256("privKeyClient1"));
+    uint256 public privKeyManager = uint256(keccak256("privKeyManager"));
+    uint256 public privKeyNewOwner = uint256(keccak256("privKeyNewOwner"));
 
     // owners
     address public client0 = vm.addr(privKeyClient0);

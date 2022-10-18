@@ -55,7 +55,7 @@ contract BeakerFactory is IBeakerFactory, Deployer, Governed, Initializable {
         bytes32 strategyId,
         bytes memory vaultParams,
         bytes memory strategyParams
-    ) external onlyGovernance {
+    ) external onlyGovernance returns (address vault, address strategy) {
         // set IDs of vault and strategy
         uint256 _vaultId = numVaults;
         uint256 _stategyId = numStrategies;
@@ -70,14 +70,14 @@ contract BeakerFactory is IBeakerFactory, Deployer, Governed, Initializable {
         );
 
         // deploy the vault contract
-        address vault = _deploy(
+        vault = _deploy(
             vaultId,
             _getSalt(vaultId, _vaultId),
             abi.encodePacked(_strategy).concat(vaultParams)
         );
 
         // deploy the strategy contract
-        address strategy = _deploy(
+        strategy = _deploy(
             strategyId,
             _getSalt(strategyId, _stategyId),
             abi.encodePacked(vault).concat(strategyParams)
@@ -137,7 +137,7 @@ contract BeakerFactory is IBeakerFactory, Deployer, Governed, Initializable {
     }
 
     /// @notice Sets a mapping for the given version ID and logic contract address
-    function setImplementation(bytes32 id, address implementation) external {
+    function setImplementation(bytes32 id, address implementation) external onlyGovernance {
         _implementations[id] = implementation;
     }
 }

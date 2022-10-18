@@ -7,6 +7,11 @@ contract IntegrationTest is BaseIntegration {
 
     function testIntegration() public {
 
+        console.log(address(strategy));
+        console.log(address(vault));
+        console.log(address(module));
+        console.log(address(safe));
+
        assertTrue(true);
     }
 }

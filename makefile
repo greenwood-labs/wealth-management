@@ -2,29 +2,53 @@
 # (-include to ignore error if it does not exist)
 -include .env
 
-# deps
-install:; forge install
-update:; forge update
+##################
+##  LOCAL NODE  ##
+##################
 
 # Running a test node
-fork-node :; anvil --fork-url ${RPC_MAINNET} --base-fee ${BASE_FEE} 
+node :; anvil \
+	--fork-url ${RPC_MAINNET} \
+	--base-fee ${BASE_FEE} 
 
-# Build & test
-build  :; forge build
-test   :; forge test
-fork-test   :; forge test --fork-url ${RPC_MAINNET} --gas-report -vvv
-fork-block :; forge test --fork-url ${RPC_MAINNET} --fork-block-number ${FORKED_BLOCK_NUMBER} -vvv
-trace   :; forge test -vvv
-clean  :; forge clean
-snapshot :; forge snapshot
-fmt    :; forge fmt
+#############
+## TESTING ##
+#############
 
-deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig -f ${RPC_MAINNET} --slow --private-key ${DEPLOYER_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast --verify -vvvv
-# make sure to run `fork node` first
-deploy-multisig-local :; forge script script/DeployMultisig.s.sol:DeployMultisig -f http://localhost:8545 --slow --private-key ${ANVIL_PRIVATE_KEY} --with-gas-price ${GAS_PRICE} --broadcast
+# run all tests
+unit-test :; forge test \
+	--no-match-path test/Integration.t.sol \
+	--fork-url ${RPC_MAINNET} \
+	--fork-block-number ${FORKED_BLOCK_NUMBER} \
+	--gas-report \
+	-vvv
 
+# run the integration test only
 integration-test :; forge test \
 	--match-path test/Integration.t.sol \
 	--fork-url ${RPC_MAINNET} \
 	--fork-block-number ${FORKED_BLOCK_NUMBER} \
-	-vvvv
+	-vvv
+
+################
+## DEPLOYMENT ##
+################
+
+# deploy the multisig contracts on mainnet
+deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig \
+	-f ${RPC_MAINNET} \
+	--slow \
+	--private-key ${DEPLOYER_PRIVATE_KEY} \
+	--with-gas-price ${GAS_PRICE} \
+	--broadcast \
+	--verify \
+	-vvv
+
+# deploy the multisig contract on a local forked mainnet node
+# make sure to run `make node` first
+deploy-multisig-local :; forge script script/DeployMultisig.s.sol:DeployMultisig \
+	-f http://localhost:8545 \
+	--slow \
+	--private-key ${ANVIL_PRIVATE_KEY} \
+	--with-gas-price ${GAS_PRICE} \
+	--broadcast
