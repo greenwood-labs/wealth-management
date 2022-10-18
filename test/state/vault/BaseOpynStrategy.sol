@@ -21,7 +21,8 @@ contract BaseOpynStrategy is BaseVaultFactory {
     IOtokenFactory public otokenFactory;
     IMarginPool public marginPool;
 
-    address public keeper = vm.addr(1234567);
+    address public keeper = vm.addr(uint256(keccak256("keeper")));
+    address public counterparty = vm.addr(uint256(keccak256("counterparty")));
 
     bytes32 public constant OPYN_STRAT_IMPL_ID = keccak256("OpynStrategyV1");
 
@@ -115,14 +116,20 @@ contract BaseOpynStrategy is BaseVaultFactory {
         vault = BeakerPeriodicVault(payable(_vault));
         strategy = OpynStrategy(_strategy);
 
-        // stop the impersonation
-        vm.stopPrank();
+        // switch prank to the counterparty
+        changePrank(counterparty);
+
+        // allow the strategy to be a operator for the counterparty
+        gammaController.setOperator(address(strategy), true);
 
         // assert vault setup
         _assertVaultSetup();
 
         // assert strategy setup
         _assertStrategySetup();
+
+        // stop the impersonation
+        vm.stopPrank();
 
         // label addresses
         labelAddresses();
