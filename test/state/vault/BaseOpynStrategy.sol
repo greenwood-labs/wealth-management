@@ -21,16 +21,16 @@ contract BaseOpynStrategy is BaseVaultFactory {
     IOtokenFactory public otokenFactory;
     IMarginPool public marginPool;
 
+    // accounts
     address public keeper = vm.addr(uint256(keccak256("keeper")));
     address public counterparty = vm.addr(uint256(keccak256("counterparty")));
 
     bytes32 public constant OPYN_STRAT_IMPL_ID = keccak256("OpynStrategyV1");
 
+    // contract addresses
     address public constant GAMMA_CONTROLLER = address(0x4ccc2339F87F6c59c6893E1A678c2266cA58dC72);
-    address public constant GAMMA_ORACLE = address(0x789cD7AB3742e23Ce0952F6Bc3Eb3A73A0E08833);
     address public constant OTOKEN_FACTORY = address(0x7C06792Af1632E77cb27a558Dc0885338F4Bdf8E);
     address public constant MARGIN_POOL = address(0x5934807cC0654d46755eBd2848840b616256C6Ef);
-    address public constant PREMIUM_PRICER = address(0x5bA2A42b74A72a1A3ccC37CF03802a0b7A551139);
 
     function _assertVaultSetup() private {
         assertEq(vault.governance(), governance);
