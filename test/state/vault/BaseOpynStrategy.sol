@@ -31,6 +31,30 @@ contract BaseOpynStrategy is BaseVaultFactory {
     address public constant MARGIN_POOL = address(0x5934807cC0654d46755eBd2848840b616256C6Ef);
     address public constant PREMIUM_PRICER = address(0x5bA2A42b74A72a1A3ccC37CF03802a0b7A551139);
 
+    function _assertVaultSetup() private {
+        assertEq(vault.governance(), governance);
+        assertEq(vault.keeper(), keeper);
+        assertEq(vault.strategy(), address(strategy));
+        assertEq(vault.asset(), address(weth));
+        assertEq(vault.factory(), address(vaultFactory));
+        assertEq(vault.router(), address(0));
+        assertEq(vault.cap(), 1000 ether);
+        assertEq(keccak256(bytes(vault.name())), keccak256(bytes(Bytes32Strings.bytes32ToString("vault-0"))));
+        assertEq(vault.symbol(), "BLP-0");
+    }
+
+    function _assertStrategySetup() private {
+        assertEq(strategy.beaker(), address(vault));
+        assertEq(strategy.governance(), governance);
+        assertEq(strategy.asset(), address(weth));
+        assertEq(address(strategy.swapRouter()), address(0));
+        assertEq(strategy.period(), 7 days);
+        assertEq(strategy.usdc(), address(usdc));
+        assertEq(address(strategy.controller()), address(gammaController));
+        assertEq(address(strategy.oTokenFactory()), address(otokenFactory));
+        assertEq(strategy.marginPool(), address(marginPool));
+    }
+
     function labelAddresses() public virtual override {
         super.labelAddresses();
 
@@ -66,11 +90,11 @@ contract BaseOpynStrategy is BaseVaultFactory {
 
         // create the vault params
         bytes memory vaultParams = abi.encodePacked(
-            keeper,                                 // _keeper: keeper of the beaker
-            address(0),                             // _router (address): the swap router address
-            uint256(1000 ether),                    // _capacity: max capacity of the underlying asset for the vault
-            address(weth),                          // _asset (address): the underlying asset handled by the vault
-            Bytes32Strings.bytes32ToString("GLP")   // _tokenName: name of the vault token
+            keeper,                                     // _keeper: keeper of the beaker
+            address(0),                                 // _router (address): the swap router address
+            uint256(1000 ether),                        // _capacity: max capacity of the underlying asset for the vault
+            address(weth),                              // _asset (address): the underlying asset handled by the vault
+            Bytes32Strings.bytes32ToString("vault-0")   // _tokenName: name of the vault token
         );
 
         // create the strategy params
@@ -93,6 +117,12 @@ contract BaseOpynStrategy is BaseVaultFactory {
 
         // stop the impersonation
         vm.stopPrank();
+
+        // assert vault setup
+        _assertVaultSetup();
+
+        // assert strategy setup
+        _assertStrategySetup();
 
         // label addresses
         labelAddresses();
