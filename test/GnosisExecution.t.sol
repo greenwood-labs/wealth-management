@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "test/state/BaseGnosisSafe.sol";
+import "test/state/multisig/BaseGnosisSafe.sol";
 
 import "safe-contracts/base/OwnerManager.sol";
 

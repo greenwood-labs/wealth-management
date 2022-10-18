@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "src/multisig/GreenwoodModule.sol";
 import "src/multisig/ModuleProxyFactory.sol";
-import "test/state/BaseGuard.sol";
+import "test/state/multisig/BaseGuard.sol";
 
 contract BaseModuleProxyFactory is BaseGuard {
     ModuleProxyFactory public moduleFactory;

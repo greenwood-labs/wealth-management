@@ -5,7 +5,7 @@ import "safe-contracts/base/GuardManager.sol";
 import "safe-contracts/common/StorageAccessible.sol";
 
 import "src/multisig/GreenwoodGuard.sol";
-import "test/state/BaseGnosisSafe.sol";
+import "test/state/multisig/BaseGnosisSafe.sol";
 
 contract BaseGuard is BaseGnosisSafe {
     GreenwoodGuard public guard;

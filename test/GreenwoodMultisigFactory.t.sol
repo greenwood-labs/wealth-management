@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "src/interfaces/Gnosis/IGnosisSafe.sol";
 import "src/multisig/GreenwoodModule.sol";
-import "test/state/BaseMultisigFactory.sol";
+import "test/state/multisig/BaseMultisigFactory.sol";
 
 contract GreenwoodMultisigFactoryTest is BaseMultisigFactory {
 

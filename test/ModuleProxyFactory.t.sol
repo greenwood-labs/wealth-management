@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "src/multisig/GreenwoodModule.sol";
-import "test/state/BaseModuleProxyFactory.sol";
+import "test/state/multisig/BaseModuleProxyFactory.sol";
 
 contract ModuleProxyFactoryTest is BaseModuleProxyFactory {
 

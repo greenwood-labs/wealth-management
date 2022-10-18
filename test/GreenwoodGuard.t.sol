@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "test/state/BaseGuard.sol";
+import "test/state/multisig/BaseGuard.sol";
 
 contract GreenwoodGuardTest is BaseGuard {
 
