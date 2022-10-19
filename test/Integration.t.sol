@@ -43,6 +43,17 @@ contract IntegrationTest is BaseIntegration {
         });
     }
 
+    function getStrategyRedemption(address account) public view returns (Periodic.Redemption memory) {
+        (
+            uint256 round,
+            uint256 shares
+        ) = strategy.redemptions(account);
+
+        return Periodic.Redemption({
+            round: round,
+            shares: shares
+        });
+    }
 
     function _assertInitialMultisigState() private {
         assertEq(weth.balanceOf(client0), 0 ether);
@@ -180,11 +191,67 @@ contract IntegrationTest is BaseIntegration {
     }
 
     function _assertInitiateRedeem() private {
-        // // initial balance of vault lp tokens
-        // uint256 lpBalanceInitial = vault.balanceOf(address(safe));
+        // initial balance of vault lp tokens
+        uint256 lpBalanceInitial = vault.balanceOf(address(safe));
 
-        // // claim all shares from the vault
-        // vm.prank(client0);
+        // RIA proposes a transaction to claim all shares from the vault
+        address proposedClaimSharesTo = address(vault);
+        bytes memory proposedClaimSharesTransaction = abi.encodeCall(vault.claimShares, (type(uint256).max));
+
+        // client executes the claim shares transaction
+        vm.prank(client0);
+        assertTrue(module.execTransaction(
+            proposedClaimSharesTo, 
+            0, 
+            proposedClaimSharesTransaction, 
+            Enum.Operation.Call
+        ));
+
+        // lp balance after claiming shares
+        uint256 lpBalanceAfterClaim = vault.balanceOf(address(safe));
+
+        // RIA proposes a transaction to approve the vault to pull all lp tokens from the multisig
+        address proposedApproveTo = address(vault);
+        bytes memory proposedApproveTransaction = abi.encodeCall(vault.approve, (address(vault), lpBalanceAfterClaim));
+
+        // RIA proposes a transaction to initiate the redemption of lp shares for the underlying asset
+        address proposedInitiateRedeemTo = address(vault);
+        bytes memory proposedInitiateRedeemTransaction = abi.encodeCall(vault.initiateRedeem, (lpBalanceAfterClaim));
+
+        // client executes the approve transaction
+        vm.prank(client0);
+        assertTrue(module.execTransaction(
+            proposedApproveTo, 
+            0, 
+            proposedApproveTransaction, 
+            Enum.Operation.Call
+        ));
+
+        // client executes the initiate redeem transaction
+        vm.prank(client0);
+        assertTrue(module.execTransaction(
+            proposedInitiateRedeemTo, 
+            0, 
+            proposedInitiateRedeemTransaction, 
+            Enum.Operation.Call
+        ));
+
+        // get strategy state after initiating redeem
+        Periodic.StrategyState memory strategyState = getStrategyState();
+        Periodic.Redemption memory redemption = getStrategyRedemption(address(safe));
+        uint256 lpBalanceAfterInitiateRedeem = vault.balanceOf(address(safe));
+
+        // assert lp balances are correct
+        assertEq(lpBalanceInitial, 0);
+        assertEq(lpBalanceAfterClaim, 1 ether);
+        assertEq(lpBalanceAfterInitiateRedeem, 0);
+
+        // assert redemption values are correct
+        assertEq(redemption.round, strategyState.round);
+        assertEq(redemption.shares, lpBalanceAfterClaim);
+
+        // assert shares queued for redemption are correct
+        assertEq(strategyState.sharesQueuedForRedemption, lpBalanceAfterClaim);
     }
 
     function testIntegration() public {
