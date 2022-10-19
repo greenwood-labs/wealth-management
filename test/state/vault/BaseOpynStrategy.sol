@@ -83,6 +83,10 @@ contract BaseOpynStrategy is BaseVaultFactory {
         // deploy the strategy template
         strategyTemplate = new OpynStrategy(address(weth), governance);
 
+        // deal the counterparty some WETH and USDC
+        deal(address(weth), counterparty, 10000 ether);
+        deal(address(usdc), counterparty, 10000e6);
+
         // impersonate the governance account
         vm.startPrank(governance);
 

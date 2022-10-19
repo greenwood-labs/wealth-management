@@ -61,8 +61,8 @@ contract BaseMockPricer is BaseOpynStrategy {
         // create weth mock pricer
         mockWethPricer = new MockPricer(address(weth), GAMMA_ORACLE);
 
-        // set the initial mock price of weth
-        mockWethPricer.setPrice(1800e8);
+        // set the initial mock price of weth to $180
+        mockWethPricer.setPrice(180e8);
 
         // set the mock weth pricer on the gamma oracle
         gammaOracle.setAssetPricer(address(weth), address(mockWethPricer));
@@ -72,7 +72,7 @@ contract BaseMockPricer is BaseOpynStrategy {
 
         // assert mock setup is correct
         assertEq(gammaOracle.getPricer(address(weth)), address(mockWethPricer));
-        assertEq(gammaOracle.getPrice(address(weth)), 1800e8);
+        assertEq(gammaOracle.getPrice(address(weth)), 180e8);
 
         // label addresses
         labelAddresses();
