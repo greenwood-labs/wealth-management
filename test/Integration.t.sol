@@ -49,6 +49,21 @@ contract IntegrationTest is BaseIntegration {
         assertEq(weth.balanceOf(address(safe)), 100 ether);
     }
 
+    function _assertInitialVaultAndStrategyState() private {
+        // get round one vault and strategy state
+        Periodic.StrategyState memory strategyState = getStrategyState();
+        uint256 lpSupply = vault.totalSupply();
+        uint256 roundPricePerShare = strategy.roundPricePerShare(1);
+
+        // assert initial vault and strategy state
+        assertEq(strategyState.round, 1);
+        assertEq(strategyState.assetsUnlockedForRedemption, 0);
+        assertEq(strategyState.totalPendingDeposits, 0);
+        assertEq(strategyState.lockedAssets, 0);
+        assertEq(lpSupply, 0);
+        assertEq(roundPricePerShare, 0);
+    }
+
     function _assertMultisigDeposit() private {
         // RIA proposes a transaction to approve the vault to pull 1 WETH from the multisig
         address proposedApproveTo = address(weth);
@@ -135,15 +150,11 @@ contract IntegrationTest is BaseIntegration {
         );
     }
 
-    function _assertRoundTwoState(
-        Periodic.StrategyState memory strategyStateBefore, 
-        uint256 lpSupplyBefore,
-        uint256 roundPricePerShareBefore
-    ) private {
+    function _assertRoundTwoState() private {
         // get round two vault and strategy state
-        Periodic.StrategyState memory strategyStateAfter = getStrategyState();
-        uint256 lpSupplyAfter = vault.totalSupply();
-        uint256 roundPricePerShareAfter = strategy.roundPricePerShare(1);
+        Periodic.StrategyState memory strategyState= getStrategyState();
+        uint256 lpSupply = vault.totalSupply();
+        uint256 roundPricePerShare = strategy.roundPricePerShare(1);
 
         // ensure that funds cant instantly be withdrawn from the vault
         vm.prank(client0);
@@ -155,18 +166,12 @@ contract IntegrationTest is BaseIntegration {
         ));
 
         // assert strategy state displays intended behavior
-        assertEq(strategyStateBefore.round, 1);
-        assertEq(strategyStateAfter.round, 2);
-        assertEq(strategyStateBefore.assetsUnlockedForRedemption, 0);
-        assertEq(strategyStateAfter.assetsUnlockedForRedemption, 0);
-        assertEq(strategyStateBefore.totalPendingDeposits, 0);
-        assertEq(strategyStateAfter.totalPendingDeposits, 0);
-        assertEq(strategyStateBefore.lockedAssets, 0);
-        assertEq(strategyStateAfter.lockedAssets, 1 ether);
-        assertEq(lpSupplyBefore, 0);
-        assertEq(lpSupplyAfter, 1 ether);
-        assertEq(roundPricePerShareBefore, 0);
-        assertEq(roundPricePerShareAfter, 1 ether);
+        assertEq(strategyState.round, 2);
+        assertEq(strategyState.assetsUnlockedForRedemption, 0);
+        assertEq(strategyState.totalPendingDeposits, 0);
+        assertEq(strategyState.lockedAssets, 1 ether);
+        assertEq(lpSupply, 1 ether);
+        assertEq(roundPricePerShare, 1 ether);
 
         // assert oTokens were distributed in the proper amounts
         assertEq(ERC20(strategy.longCallOtoken()).balanceOf(address(strategy)), 1e8);
@@ -174,15 +179,21 @@ contract IntegrationTest is BaseIntegration {
         assertEq(ERC20(strategy.shortPutOtoken()).balanceOf(address(counterparty)), 5e8);
     }
 
+    function _assertInitiateRedeem() private {
+        // // initial balance of vault lp tokens
+        // uint256 lpBalanceInitial = vault.balanceOf(address(safe));
+
+        // // claim all shares from the vault
+        // vm.prank(client0);
+    }
+
     function testIntegration() public {
 
-        // client has funds in the Greenwood multisig
+        // make sure client has funds in the Greenwood multisig
         _assertInitialMultisigState();
 
-        // get round one vault and strategy state
-        Periodic.StrategyState memory strategyStateBefore = getStrategyState();
-        uint256 lpSupplyBefore = vault.totalSupply();
-        uint256 roundPricePerShareBefore = strategy.roundPricePerShare(1);
+        // make sure the vault and strategy are in the correct initial state
+        _assertInitialVaultAndStrategyState();
 
         // client deposits 1 WETH into the vault via the Greenwood Multisig
         _assertMultisigDeposit();
@@ -191,12 +202,9 @@ contract IntegrationTest is BaseIntegration {
         _assertRollToRoundTwo();
 
         // check expected behavior after completing a roll to round two
-        _assertRoundTwoState(
-            strategyStateBefore,
-            lpSupplyBefore,
-            roundPricePerShareBefore
-        );
+        _assertRoundTwoState();
 
-        
+        // Initiate a redemption to eventually redeem shares for underlying asset
+        _assertInitiateRedeem();    
     }
 }
