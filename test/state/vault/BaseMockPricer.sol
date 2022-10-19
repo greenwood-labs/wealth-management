@@ -42,6 +42,17 @@ contract BaseMockPricer is BaseOpynStrategy {
         vm.stopPrank();
     }
 
+    function setWethExpirySpotPrice(uint256 spotPrice, uint256 expiry) public {
+        
+        // change WETH spot price
+        mockWethPricer.setExpiryPriceInOracle(expiry, spotPrice);
+
+        // update the spot price of all oTokens (necessary only to poke the system, spot value doesn't matter)
+        mockLongCallPricer.setExpiryPriceInOracle(expiry, 1e8);
+        mockLongPutPricer.setExpiryPriceInOracle(expiry, 1e8);
+        mockShortPutPricer.setExpiryPriceInOracle(expiry, 1e8);
+    }
+
     function labelAddresses() public virtual override {
         super.labelAddresses();
 

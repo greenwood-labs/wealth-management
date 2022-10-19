@@ -254,6 +254,38 @@ contract IntegrationTest is BaseIntegration {
         assertEq(strategyState.sharesQueuedForRedemption, lpBalanceAfterClaim);
     }
 
+    function _assertCloseRoundAndPayout() private {
+        // speed time up until right after the expiry timestamp
+        vm.warp(strategy.currentExpiry() + 1);
+
+        // mock the underlying asset price to $300 to expire in the money for the long call oTokens
+        setWethExpirySpotPrice(300e8, strategy.currentExpiry());
+
+        // speed up past the Gamma Protocol dispute period
+        vm.warp(block.timestamp + 1 days);
+
+        // get short put oToken address before it is removed from the strategy
+        address shortPutOtoken = strategy.shortPutOtoken();
+
+        // keeper commits and closes the current round
+        vm.prank(keeper);
+        vault.commitAndClose();
+
+        // speed up time to get oToken expiry in sync with round expiry
+        Periodic.StrategyState memory strategyState = getStrategyState();
+        vm.warp(strategyState.roundExpiration);
+
+        // WETH price ended at $300 with a call strike price of $200, so 
+        // $100 of WETH is entitled to the strategy, which is 0.333333 WETH
+        // There is also an underlying 1 WETH that was deposited, so total strategy
+        // WETH holdings should be 1.33333 WETH
+        assertEq(weth.balanceOf(address(strategy)), 1.333333333333333333 ether);
+
+        // assert that the counterparty still has unredeemed oTokens
+        assertEq(ERC20(shortPutOtoken).balanceOf(counterparty), 5e8);
+
+    }
+
     function testIntegration() public {
 
         // make sure client has funds in the Greenwood multisig
@@ -272,6 +304,9 @@ contract IntegrationTest is BaseIntegration {
         _assertRoundTwoState();
 
         // Initiate a redemption to eventually redeem shares for underlying asset
-        _assertInitiateRedeem();    
+        _assertInitiateRedeem(); 
+        
+        // Close round two and calculate payouts for lp holders and the counterparty
+        _assertCloseRoundAndPayout();
     }
 }
