@@ -7,7 +7,6 @@ import "src/libraries/Periodic.sol";
 
 contract IntegrationTest is BaseIntegration {
 
-
     // converts returned tuple values into a strategyState struct
     function getStrategyState() public view returns (Periodic.StrategyState memory) {
         (
@@ -114,28 +113,31 @@ contract IntegrationTest is BaseIntegration {
         assertEq(deposit.unclaimedShares, 0);
     }
 
-    function _assertRollToRoundTwo() private {
-        // get the current timestamp
-        uint256 roundOneTimestamp = block.timestamp;
-
+    function _assertRollToNextRound(
+        uint256 longCallStrike,
+        uint256 longPutStrike,
+        uint256 shortPutStrike,
+        uint256 usdcCollateral,
+        uint256 wethCollateral
+    ) private {
         // counterparty approves the transfer of WETH to the strategy
         vm.prank(counterparty);
-        weth.approve(address(strategy), 1 ether);
+        weth.approve(address(strategy), wethCollateral);
 
         // counterparty approves the transfer of USDC to the strategy
         vm.prank(counterparty);
-        usdc.approve(address(strategy), 1000e6);
+        usdc.approve(address(strategy), usdcCollateral);
 
         // counterparty creates the the oTokens for the next round.
         // The counterparty account does not *have* to be the one that executes this function
         vm.prank(counterparty);
         strategy.createOtokens(
-            200e8,              // $200 long call strike
-            200e8,              // $200 long put strike
-            150e8,              // $150 short put strike
-            roundOneTimestamp,  // use current timestamp to get next friday expiration
-            1000e6,             // 1000 USDC as collateral
-            1 ether,            // 1 WETH as collateral
+            longCallStrike,            
+            longPutStrike,           
+            shortPutStrike,              
+            block.timestamp,    // use current timestamp to get next friday expiration
+            usdcCollateral,         
+            wethCollateral,       
             counterparty        // account that will be the counterparty
         );
 
@@ -145,8 +147,8 @@ contract IntegrationTest is BaseIntegration {
         assertTrue(address(strategy.shortPutOtoken()) != address(0));
 
         // assert collateral and counterparty was properly set
-        assertEq(strategy.usdcPutCollateral(), 1000e6);
-        assertEq(strategy.wethCallCollateral(), 1 ether);
+        assertEq(strategy.usdcPutCollateral(), usdcCollateral);
+        assertEq(strategy.wethCallCollateral(), wethCollateral);
         assertEq(strategy.counterparty(), counterparty);
 
         // once oTokens have been created, the keeper can roll the vault to the next round
@@ -163,7 +165,7 @@ contract IntegrationTest is BaseIntegration {
 
     function _assertRoundTwoState() private {
         // get round two vault and strategy state
-        Periodic.StrategyState memory strategyState= getStrategyState();
+        Periodic.StrategyState memory strategyState = getStrategyState();
         uint256 lpSupply = vault.totalSupply();
         uint256 roundPricePerShare = strategy.roundPricePerShare(1);
 
@@ -273,7 +275,7 @@ contract IntegrationTest is BaseIntegration {
 
         // speed up time to get oToken expiry in sync with round expiry
         Periodic.StrategyState memory strategyState = getStrategyState();
-        vm.warp(strategyState.roundExpiration);
+        vm.warp(strategyState.roundExpiration + 1);
 
         // WETH price ended at $300 with a call strike price of $200, so 
         // $100 of WETH is entitled to the strategy, which is 0.333333 WETH
@@ -283,7 +285,47 @@ contract IntegrationTest is BaseIntegration {
 
         // assert that the counterparty still has unredeemed oTokens
         assertEq(ERC20(shortPutOtoken).balanceOf(counterparty), 5e8);
+    }
 
+    function _assertRoundThreeState() private {
+        // get round three vault and strategy state
+        Periodic.StrategyState memory strategyState = getStrategyState();
+        uint256 safeWethBalance = weth.balanceOf(address(safe));
+        Periodic.Redemption memory redemption = getStrategyRedemption(address(safe));
+
+        // assert strategy state displays intended behavior
+        assertEq(strategyState.round, 3);
+        assertEq(strategyState.assetsUnlockedForRedemption, 1.333333333333333333 ether);
+        assertEq(safeWethBalance, 99 ether);
+        assertEq(redemption.shares, 1 ether);
+    }
+
+    function _assertRedeem() private {
+        // RIA proposes a transaction to complete the redemption of lp shares for the underlying asset
+        address proposedRedeemTo = address(vault);
+        bytes memory proposedRedeemTransaction = abi.encodeCall(vault.redeem, ());
+
+        // client executes the redeem transaction
+        vm.prank(client0);
+        assertTrue(module.execTransaction(
+            proposedRedeemTo, 
+            0, 
+            proposedRedeemTransaction, 
+            Enum.Operation.Call
+        ));
+
+        // get vault and strategy state
+        Periodic.StrategyState memory strategyState = getStrategyState();
+        uint256 safeWethBalance = weth.balanceOf(address(safe));
+        Periodic.Redemption memory redemption = getStrategyRedemption(address(safe));
+        uint256 lpTotalSupply = vault.totalSupply();
+
+        // assert strategy state displays intended behavior
+        assertEq(strategyState.assetsUnlockedForRedemption, 0);
+        assertEq(strategyState.sharesQueuedForRedemption, 0);
+        assertEq(safeWethBalance, 100.333333333333333333 ether);
+        assertEq(lpTotalSupply, 0);
+        assertEq(redemption.shares, 0);
     }
 
     function testIntegration() public {
@@ -297,8 +339,14 @@ contract IntegrationTest is BaseIntegration {
         // client deposits 1 WETH into the vault via the Greenwood Multisig
         _assertMultisigDeposit();
 
-        // roll to round 2 after client has deposited to the vault
-        _assertRollToRoundTwo();
+        // roll to round two
+        _assertRollToNextRound(
+            200e8,  // $200 long call strike
+            200e8,  // $200 long put strike
+            150e8,  // $150 short put strike
+            1000e6, // 1000 USDC as collateral
+            1 ether // 1 WETH as collateral
+        );
 
         // check expected behavior after completing a roll to round two
         _assertRoundTwoState();
@@ -308,5 +356,20 @@ contract IntegrationTest is BaseIntegration {
         
         // Close round two and calculate payouts for lp holders and the counterparty
         _assertCloseRoundAndPayout();
+
+        // roll to round three
+        _assertRollToNextRound(
+            300e8,  // $300 long call strike
+            300e8,  // $300 long put strike
+            200e8,  // $200 short put strike
+            1000e6, // 1000 USDC as collateral
+            1 ether // 1 WETH as collateral
+        );
+
+        // check expected behavior after completing a roll to round three
+        _assertRoundThreeState();
+
+        // Redeem shares for underlying asset
+        _assertRedeem();
     }
 }
