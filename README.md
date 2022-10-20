@@ -7,6 +7,30 @@
         width="100%">
 </p>
 
+> **Warning**
+>
+> These contracts are **unaudited** and are not recommended for use in production.
+>
+> Although contracts have been rigorously reviewed, this is **experimental software** and is provided on an "as is" and "as available" basis.
+> We **do not give any warranties** and **will not be liable for any loss** incurred through any use of this codebase.
+
+### Usage
+
+Install with [**Foundry**](https://github.com/foundry-rs/foundry):
+```sh
+forge install
+```
+
+Create a **.env** file and add an RPC endpoint ([**alchemy**](https://www.alchemy.com/) recommended):
+```sh
+RPC_MAINNET=https://eth-mainnet.alchemyapi.io/v2/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Run the integration test:
+```sh
+make integration-test
+```
+
 ## Introduction
 Greenwood is a non-custodial wealth management protocol for Web3. With Greenwood, wealth managers can give their clients access to the long tail of decentralized finance (DeFi) assets and protocols for the first time.
 
