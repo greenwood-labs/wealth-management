@@ -114,6 +114,7 @@ contract IntegrationTest is BaseIntegration {
         ));
 
         console.log("Client executes both transactions via module.execTransaction()");
+        console.log("on the Greenwood module contract");
         console.log("");
 
         // get the Deposit struct for the safe and new strategy state
