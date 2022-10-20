@@ -12,6 +12,10 @@ contract BaseIntegration is BaseMultisigFactory, BaseMockPricer {
 
     function setUpLogs() public view {
         console.log("");
+        console.log("This integration test demonstrates how a wealth manager can use the Greenwood protocol to recommend");
+        console.log("multi-step DeFi transactions to their clients without taking custody of client assets and whithout the client");
+        console.log("having to execute each step manually.");
+        console.log("");
         console.log("##############################################");
         console.log("###        GREENWOOD MULTISIG SETUP        ###");
         console.log("##############################################");
