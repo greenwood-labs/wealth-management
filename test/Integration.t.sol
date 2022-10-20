@@ -79,20 +79,16 @@ contract IntegrationTest is BaseIntegration {
         address proposedApproveTo = address(weth);
         bytes memory proposedApproveTransaction = abi.encodeCall(weth.approve, (address(vault), 1 ether));
 
-        console.log("RIA proposes a transaction to approve the vault to pull 1 WETH from the multisig");
-        console.log("Transaction: weth.approve(address(vault), 1 ether)");
-        console.log("Encoded transaction:");
-        console.logBytes(proposedApproveTransaction);
+        console.log("RIA proposes a transaction to approve the vault to pull 1 WETH from the multisig:");
+        console.log("   Transaction: weth.approve(address(vault), 1 ether)");
         console.log("");
 
         // RIA proposes a transaction to deposit into the vault
         address proposedDepositTo = address(vault);
         bytes memory proposedDepositTransaction = abi.encodeCall(vault.deposit, (1 ether));
 
-        console.log("RIA proposes a transaction to deposit into the vault");
-        console.log("Transaction: vault.deposit(1 ether)");
-        console.log("Encoded transaction:");
-        console.logBytes(proposedDepositTransaction);
+        console.log("RIA proposes a transaction to deposit into the vault:");
+        console.log("   Transaction: vault.deposit(1 ether)");
         console.log("");
 
         // client executes the approve transaction
@@ -226,7 +222,7 @@ contract IntegrationTest is BaseIntegration {
         assertEq(ERC20(strategy.longPutOtoken()).balanceOf(address(strategy)), 0);
         assertEq(ERC20(strategy.shortPutOtoken()).balanceOf(address(counterparty)), 5e8);
 
-        console.log("Vault round:           %s", strategyState.round);
+        console.log("Current vault round:   %s", strategyState.round);
         console.log("Vault locked assets:   %s WETH", strategyState.lockedAssets / 1e18);
         console.log("");
         console.log("Long Call oToken balance: %s oTokens", ERC20(strategy.longCallOtoken()).balanceOf(address(strategy)) / 1e8);
@@ -243,9 +239,7 @@ contract IntegrationTest is BaseIntegration {
         bytes memory proposedClaimSharesTransaction = abi.encodeCall(vault.claimShares, (type(uint256).max));
 
         console.log("RIA proposes a transaction to claim all shares from the vault");
-        console.log("Transaction: vault.claimShares(MAX_UINT256)");
-        console.log("Encoded transaction:");
-        console.logBytes(proposedClaimSharesTransaction);
+        console.log("   Transaction: vault.claimShares(MAX_UINT256)");
         console.log("");
 
         // client executes the claim shares transaction
@@ -257,7 +251,8 @@ contract IntegrationTest is BaseIntegration {
             Enum.Operation.Call
         ));
 
-        console.log("Client executes transaction to claim the shares");
+        console.log("Client executes transaction to claim the shares via module.execTransaction()");
+        console.log("on the Greenwood module contract");
         console.log("");
 
         // lp balance after claiming shares
@@ -270,20 +265,16 @@ contract IntegrationTest is BaseIntegration {
         address proposedApproveTo = address(vault);
         bytes memory proposedApproveTransaction = abi.encodeCall(vault.approve, (address(vault), lpBalanceAfterClaim));
 
-        console.log("RIA proposes a transaction to approve the vault to pull all lp tokens from the multisig");
-        console.log("Transaction: vault.approve(vault, vault.balanceOf(address(safe)))");
-        console.log("Encoded transaction:");
-        console.logBytes(proposedApproveTransaction);
+        console.log("RIA proposes a transaction to approve the vault to pull all lp tokens from the multisig:");
+        console.log("   Transaction: vault.approve(vault, vault.balanceOf(address(safe)))");
         console.log("");
 
         // RIA proposes a transaction to initiate the redemption of lp shares for the underlying asset
         address proposedInitiateRedeemTo = address(vault);
         bytes memory proposedInitiateRedeemTransaction = abi.encodeCall(vault.initiateRedeem, (lpBalanceAfterClaim));
 
-        console.log("RIA proposes a transaction to initiate the redemption of lp shares for the underlying asset");
-        console.log("Transaction: vault.initiateRedeem(vault.balanceOf(address(safe)))");
-        console.log("Encoded transaction:");
-        console.logBytes(proposedInitiateRedeemTransaction);
+        console.log("RIA proposes a transaction to initiate the redemption of lp shares for the underlying asset:");
+        console.log("   Transaction: vault.initiateRedeem(vault.balanceOf(address(safe)))");
         console.log("");
 
         // client executes the approve transaction
@@ -305,6 +296,7 @@ contract IntegrationTest is BaseIntegration {
         ));
 
         console.log("Client executes both transactions via module.execTransaction()");
+        console.log("on the Greenwood module contract");
         console.log("");
 
         // get strategy state after initiating redeem
@@ -384,10 +376,9 @@ contract IntegrationTest is BaseIntegration {
         assertEq(safeWethBalance, 99 ether);
         assertEq(redemption.shares, 1 ether);
 
-        console.log("Vault round:                           %s", strategyState.round);
+        console.log("Current vaault round:                  %s", strategyState.round);
         console.log("Vault assets unlocked for redemption:  %s WETH", strategyState.assetsUnlockedForRedemption);
-        console.log("");
-        console.log("Gnosis Safe WETH balance:  %s WETH", safeWethBalance);
+        console.log("Gnosis Safe WETH balance:              %s WETH", safeWethBalance);
     }
 
     function _assertRedeem() private {
@@ -395,10 +386,8 @@ contract IntegrationTest is BaseIntegration {
         address proposedRedeemTo = address(vault);
         bytes memory proposedRedeemTransaction = abi.encodeCall(vault.redeem, ());
 
-        console.log("RIA proposes a transaction to complete the redemption of lp shares for the underlying asset");
-        console.log("Transaction: vault.redeem()");
-        console.log("Encoded transaction:");
-        console.logBytes(proposedRedeemTransaction);
+        console.log("RIA proposes a transaction to complete the redemption of lp shares for the underlying asset:");
+        console.log("   Transaction: vault.redeem()");
         console.log("");
 
         // client executes the redeem transaction
@@ -410,7 +399,8 @@ contract IntegrationTest is BaseIntegration {
             Enum.Operation.Call
         ));
 
-        console.log("Client executes transaction via module.execTransaction()");
+        console.log("Client executes redeem transaction via module.execTransaction()");
+        console.log("on the Greenwood module contract");
         console.log("");
 
         // get vault and strategy state
