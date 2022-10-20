@@ -79,9 +79,21 @@ contract IntegrationTest is BaseIntegration {
         address proposedApproveTo = address(weth);
         bytes memory proposedApproveTransaction = abi.encodeCall(weth.approve, (address(vault), 1 ether));
 
+        console.log("RIA proposes a transaction to approve the vault to pull 1 WETH from the multisig");
+        console.log("Transaction: weth.approve(address(vault), 1 ether)");
+        console.log("Encoded transaction:");
+        console.logBytes(proposedApproveTransaction);
+        console.log("");
+
         // RIA proposes a transaction to deposit into the vault
         address proposedDepositTo = address(vault);
         bytes memory proposedDepositTransaction = abi.encodeCall(vault.deposit, (1 ether));
+
+        console.log("RIA proposes a transaction to deposit into the vault");
+        console.log("Transaction: vault.deposit(1 ether)");
+        console.log("Encoded transaction:");
+        console.logBytes(proposedDepositTransaction);
+        console.log("");
 
         // client executes the approve transaction
         vm.prank(client0);
@@ -101,6 +113,9 @@ contract IntegrationTest is BaseIntegration {
             Enum.Operation.Call
         ));
 
+        console.log("Client executes both transactions");
+        console.log("");
+
         // get the Deposit struct for the safe and new strategy state
         Periodic.Deposit memory deposit = getStrategyDeposit(address(safe));
         Periodic.StrategyState memory strategyStatePostDeposit = getStrategyState();
@@ -111,6 +126,9 @@ contract IntegrationTest is BaseIntegration {
         assertEq(deposit.amount, 1 ether);
         assertEq(deposit.round, strategyStatePostDeposit.round);
         assertEq(deposit.unclaimedShares, 0);
+
+        console.log("Vault total pending deposits:  ", strategyStatePostDeposit.totalPendingDeposits / 1e18, "WETH");
+        console.log("Gnosis Safe WETH balance:      ", weth.balanceOf(address(safe)) / 1e18, "WETH");
     }
 
     function _assertRollToNextRound(
@@ -335,6 +353,12 @@ contract IntegrationTest is BaseIntegration {
 
         // make sure the vault and strategy are in the correct initial state
         _assertInitialVaultAndStrategyState();
+
+        console.log("");
+        console.log("##############################################");
+        console.log("###      DEPOSIT INTO GREENWOOD VAULT      ###");
+        console.log("##############################################");
+        console.log("");
 
         // client deposits 1 WETH into the vault via the Greenwood Multisig
         _assertMultisigDeposit();

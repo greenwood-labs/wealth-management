@@ -10,9 +10,7 @@ contract BaseIntegration is BaseMultisigFactory, BaseMockPricer {
         super.labelAddresses();
     }
 
-    function setUp() public virtual override(BaseMultisigFactory, BaseMockPricer) {
-        super.setUp();
-
+    function setUpLogs() public view {
         console.log("");
         console.log("##############################################");
         console.log("###        GREENWOOD MULTISIG SETUP        ###");
@@ -41,6 +39,12 @@ contract BaseIntegration is BaseMultisigFactory, BaseMockPricer {
         console.log("Client Address:             ", address(client0));
         console.log("Counterparty Address:       ", address(counterparty));
         console.log("Gnosis Safe WETH balance:   ", weth.balanceOf(address(safe)) / 1e18, "WETH");
+    }
+
+    function setUp() public virtual override(BaseMultisigFactory, BaseMockPricer) {
+        super.setUp();
+
+        setUpLogs();
     
         labelAddresses();
     }
