@@ -127,8 +127,8 @@ contract IntegrationTest is BaseIntegration {
         assertEq(deposit.round, strategyStatePostDeposit.round);
         assertEq(deposit.unclaimedShares, 0);
 
-        console.log("Vault total pending deposits:  ", strategyStatePostDeposit.totalPendingDeposits / 1e18, "WETH");
-        console.log("Gnosis Safe WETH balance:      ", weth.balanceOf(address(safe)) / 1e18, "WETH");
+        console.log("Vault total pending deposits:  %s WETH", strategyStatePostDeposit.totalPendingDeposits / 1e18);
+        console.log("Gnosis Safe WETH balance:      %s WETH", weth.balanceOf(address(safe)) / 1e18);
     }
 
     function _assertRollToNextRound(
@@ -160,14 +160,14 @@ contract IntegrationTest is BaseIntegration {
         );
 
         console.log("Counterparty creates the oTokens for the new round with strike prices:");
-        console.log("   Long Call Strike: ", longCallStrike / 1e8, "USD");
-        console.log("   Long Put Strike:  ", longPutStrike / 1e8, "USD");
-        console.log("   Short Put Strike: ", shortPutStrike / 1e8, "USD");
+        console.log("   Long Call Strike: $%s USD", longCallStrike / 1e8);
+        console.log("   Long Put Strike:  $%s USD", longPutStrike / 1e8);
+        console.log("   Short Put Strike: $%s USD", shortPutStrike / 1e8);
         console.log("");
 
         console.log("Counterparty collateralizes oTokens with:");
-        console.log("   USDC Collateral:  ", usdcCollateral / 1e6, "USDC");
-        console.log("   WETH Collateral:  ", wethCollateral / 1e18, "WETH");
+        console.log("   USDC Collateral:  %s USDC", usdcCollateral / 1e6);
+        console.log("   WETH Collateral:  %s WETH", wethCollateral / 1e18);
         console.log("");
 
         // assert oTokens were deployed
@@ -191,9 +191,9 @@ contract IntegrationTest is BaseIntegration {
             strategy.shortPutOtoken()
         );
 
-        console.log("Long Call oToken: ", address(strategy.longCallOtoken()));
-        console.log("Long Put oToken:  ", address(strategy.longPutOtoken()));
-        console.log("Short Put oToken: ", address(strategy.shortPutOtoken()));
+        console.log("Long Call oToken: %s", address(strategy.longCallOtoken()));
+        console.log("Long Put oToken:  %s", address(strategy.longPutOtoken()));
+        console.log("Short Put oToken: %s", address(strategy.shortPutOtoken()));
         console.log("");
     }
 
@@ -224,6 +224,13 @@ contract IntegrationTest is BaseIntegration {
         assertEq(ERC20(strategy.longCallOtoken()).balanceOf(address(strategy)), 1e8);
         assertEq(ERC20(strategy.longPutOtoken()).balanceOf(address(strategy)), 0);
         assertEq(ERC20(strategy.shortPutOtoken()).balanceOf(address(counterparty)), 5e8);
+
+        console.log("Vault round:           %s", strategyState.round);
+        console.log("Vault locked assets:   %s WETH", strategyState.lockedAssets / 1e18);
+        console.log("");
+        console.log("Long Call oToken balance: %s oTokens", ERC20(strategy.longCallOtoken()).balanceOf(address(strategy)) / 1e8);
+        console.log("Long Put oToken balance:  %s oTokens", ERC20(strategy.longPutOtoken()).balanceOf(address(strategy)) / 1e8);
+        console.log("Short Put oToken balance: %s oTokens", ERC20(strategy.shortPutOtoken()).balanceOf(address(counterparty)) / 1e8);
     }
 
     function _assertInitiateRedeem() private {
@@ -255,7 +262,7 @@ contract IntegrationTest is BaseIntegration {
         // lp balance after claiming shares
         uint256 lpBalanceAfterClaim = vault.balanceOf(address(safe));
 
-        console.log("Gnosis Safe vault LP balance:  ", lpBalanceAfterClaim / 1e18);
+        console.log("Gnosis Safe vault LP balance: %s", lpBalanceAfterClaim / 1e18);
         console.log("");
 
         // RIA proposes a transaction to approve the vault to pull all lp tokens from the multisig
@@ -316,7 +323,7 @@ contract IntegrationTest is BaseIntegration {
         // assert shares queued for redemption are correct
         assertEq(strategyState.sharesQueuedForRedemption, lpBalanceAfterClaim);
 
-        console.log("Vault shares queued for redemption:  ", strategyState.sharesQueuedForRedemption / 1e18);
+        console.log("Vault shares queued for redemption: %s", strategyState.sharesQueuedForRedemption / 1e18);
     }
 
     function _assertCloseRoundAndPayout() private {
@@ -335,6 +342,9 @@ contract IntegrationTest is BaseIntegration {
         // keeper commits and closes the current round
         vm.prank(keeper);
         vault.commitAndClose();
+
+        console.log("Keeper address calls commitAndClose() to close the current round");
+        console.log("");
 
         // speed up time to get oToken expiry in sync with round expiry
         Periodic.StrategyState memory strategyState = getStrategyState();
@@ -357,8 +367,8 @@ contract IntegrationTest is BaseIntegration {
         );
         console.log("");
 
-        console.log("Strategy WETH payout:                  ", weth.balanceOf(address(strategy)));
-        console.log("Counterparty short put oToken balance: ", ERC20(shortPutOtoken).balanceOf(counterparty) / 1e8, "oTokens");
+        console.log("Strategy WETH payout:                  %s", weth.balanceOf(address(strategy)));
+        console.log("Counterparty short put oToken balance: %s oTokens", ERC20(shortPutOtoken).balanceOf(counterparty) / 1e8);
     }
 
     function _assertRoundThreeState() private {
@@ -372,6 +382,11 @@ contract IntegrationTest is BaseIntegration {
         assertEq(strategyState.assetsUnlockedForRedemption, 1.333333333333333333 ether);
         assertEq(safeWethBalance, 99 ether);
         assertEq(redemption.shares, 1 ether);
+
+        console.log("Vault round:                           %s", strategyState.round);
+        console.log("Vault assets unlocked for redemption:  %s WETH", strategyState.assetsUnlockedForRedemption);
+        console.log("");
+        console.log("Gnosis Safe WETH balance:  %s WETH", safeWethBalance);
     }
 
     function _assertRedeem() private {
@@ -416,8 +431,8 @@ contract IntegrationTest is BaseIntegration {
         );
         console.log("");
 
-        console.log("Vault assets unlocked for redemption:  ", strategyState.assetsUnlockedForRedemption);
-        console.log("Safe WETH Balance after redemption:    ", safeWethBalance);
+        console.log("Vault assets unlocked for redemption:  %s", strategyState.assetsUnlockedForRedemption);
+        console.log("Safe WETH Balance after redemption:    %s", safeWethBalance);
     }
 
     function testIntegration() public {
@@ -451,6 +466,12 @@ contract IntegrationTest is BaseIntegration {
             1000e6, // 1000 USDC as collateral
             1 ether // 1 WETH as collateral
         );
+
+        console.log("");
+        console.log("##############################################");
+        console.log("###           VAULT ROUND 2 STATE          ###");
+        console.log("##############################################");
+        console.log("");
 
         // check expected behavior after completing a roll to round two
         _assertRoundTwoState();
@@ -487,6 +508,12 @@ contract IntegrationTest is BaseIntegration {
             1000e6, // 1000 USDC as collateral
             1 ether // 1 WETH as collateral
         );
+
+        console.log("");
+        console.log("##############################################");
+        console.log("###           VAULT ROUND 3 STATE          ###");
+        console.log("##############################################");
+        console.log("");
 
         // check expected behavior after completing a roll to round three
         _assertRoundThreeState();

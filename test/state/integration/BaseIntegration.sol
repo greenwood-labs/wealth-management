@@ -16,29 +16,29 @@ contract BaseIntegration is BaseMultisigFactory, BaseMockPricer {
         console.log("###        GREENWOOD MULTISIG SETUP        ###");
         console.log("##############################################");
         console.log("");
-        console.log("Gnosis Safe Address:           ", address(safe));
-        console.log("Greenwood Module Address:      ", address(module));
-        console.log("Greenwood Guard Address:       ", address(guard));
-        console.log("Module Proxy Factory Address:  ", address(moduleFactory));
-        console.log("Multisig Factory Address:      ", address(multisigFactory));
+        console.log("Gnosis Safe Address:           %s", address(safe));
+        console.log("Greenwood Module Address:      %s", address(module));
+        console.log("Greenwood Guard Address:       %s", address(guard));
+        console.log("Module Proxy Factory Address:  %s", address(moduleFactory));
+        console.log("Multisig Factory Address:      %s", address(multisigFactory));
 
         console.log("");
         console.log("##############################################");
         console.log("###         GREENWOOD VAULT SETUP          ###");
         console.log("##############################################");
         console.log("");
-        console.log("Vault Factory Address:                 ", address(vaultFactory));
-        console.log("Greenwood Vault Address:               ", address(strategy));
-        console.log("Opyn Buffered Note Strategy Address:   ", address(vault));
+        console.log("Vault Factory Address:                 %s", address(vaultFactory));
+        console.log("Greenwood Vault Address:               %s", address(strategy));
+        console.log("Opyn Buffered Note Strategy Address:   %s", address(vault));
 
         console.log("");
         console.log("##############################################");
         console.log("###     INTEGRATION TEST INITIAL STATE     ###");
         console.log("##############################################");
         console.log("");
-        console.log("Client Address:             ", address(client0));
-        console.log("Counterparty Address:       ", address(counterparty));
-        console.log("Gnosis Safe WETH balance:   ", weth.balanceOf(address(safe)) / 1e18, "WETH");
+        console.log("Client Address:             %s", address(client0));
+        console.log("Counterparty Address:       %s", address(counterparty));
+        console.log("Gnosis Safe WETH balance:   %s WETH", weth.balanceOf(address(safe)) / 1e18);
     }
 
     function setUp() public virtual override(BaseMultisigFactory, BaseMockPricer) {
