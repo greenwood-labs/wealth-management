@@ -113,7 +113,7 @@ contract IntegrationTest is BaseIntegration {
             Enum.Operation.Call
         ));
 
-        console.log("Client executes both transactions");
+        console.log("Client executes both transactions via module.execTransaction()");
         console.log("");
 
         // get the Deposit struct for the safe and new strategy state
@@ -159,6 +159,17 @@ contract IntegrationTest is BaseIntegration {
             counterparty        // account that will be the counterparty
         );
 
+        console.log("Counterparty creates the oTokens for the new round with strike prices:");
+        console.log("   Long Call Strike: ", longCallStrike / 1e8, "USD");
+        console.log("   Long Put Strike:  ", longPutStrike / 1e8, "USD");
+        console.log("   Short Put Strike: ", shortPutStrike / 1e8, "USD");
+        console.log("");
+
+        console.log("Counterparty collateralizes oTokens with:");
+        console.log("   USDC Collateral:  ", usdcCollateral / 1e6, "USDC");
+        console.log("   WETH Collateral:  ", wethCollateral / 1e18, "WETH");
+        console.log("");
+
         // assert oTokens were deployed
         assertTrue(address(strategy.longCallOtoken()) != address(0));
         assertTrue(address(strategy.longPutOtoken()) != address(0));
@@ -179,6 +190,11 @@ contract IntegrationTest is BaseIntegration {
             strategy.longPutOtoken(), 
             strategy.shortPutOtoken()
         );
+
+        console.log("Long Call oToken: ", address(strategy.longCallOtoken()));
+        console.log("Long Put oToken:  ", address(strategy.longPutOtoken()));
+        console.log("Short Put oToken: ", address(strategy.shortPutOtoken()));
+        console.log("");
     }
 
     function _assertRoundTwoState() private {
@@ -218,6 +234,12 @@ contract IntegrationTest is BaseIntegration {
         address proposedClaimSharesTo = address(vault);
         bytes memory proposedClaimSharesTransaction = abi.encodeCall(vault.claimShares, (type(uint256).max));
 
+        console.log("RIA proposes a transaction to claim all shares from the vault");
+        console.log("Transaction: vault.claimShares(MAX_UINT256)");
+        console.log("Encoded transaction:");
+        console.logBytes(proposedClaimSharesTransaction);
+        console.log("");
+
         // client executes the claim shares transaction
         vm.prank(client0);
         assertTrue(module.execTransaction(
@@ -227,16 +249,34 @@ contract IntegrationTest is BaseIntegration {
             Enum.Operation.Call
         ));
 
+        console.log("Client executes transaction to claim the shares");
+        console.log("");
+
         // lp balance after claiming shares
         uint256 lpBalanceAfterClaim = vault.balanceOf(address(safe));
+
+        console.log("Gnosis Safe vault LP balance:  ", lpBalanceAfterClaim / 1e18);
+        console.log("");
 
         // RIA proposes a transaction to approve the vault to pull all lp tokens from the multisig
         address proposedApproveTo = address(vault);
         bytes memory proposedApproveTransaction = abi.encodeCall(vault.approve, (address(vault), lpBalanceAfterClaim));
 
+        console.log("RIA proposes a transaction to approve the vault to pull all lp tokens from the multisig");
+        console.log("Transaction: vault.approve(vault, vault.balanceOf(address(safe)))");
+        console.log("Encoded transaction:");
+        console.logBytes(proposedApproveTransaction);
+        console.log("");
+
         // RIA proposes a transaction to initiate the redemption of lp shares for the underlying asset
         address proposedInitiateRedeemTo = address(vault);
         bytes memory proposedInitiateRedeemTransaction = abi.encodeCall(vault.initiateRedeem, (lpBalanceAfterClaim));
+
+        console.log("RIA proposes a transaction to initiate the redemption of lp shares for the underlying asset");
+        console.log("Transaction: vault.initiateRedeem(vault.balanceOf(address(safe)))");
+        console.log("Encoded transaction:");
+        console.logBytes(proposedInitiateRedeemTransaction);
+        console.log("");
 
         // client executes the approve transaction
         vm.prank(client0);
@@ -256,6 +296,9 @@ contract IntegrationTest is BaseIntegration {
             Enum.Operation.Call
         ));
 
+        console.log("Client executes both transactions via module.execTransaction()");
+        console.log("");
+
         // get strategy state after initiating redeem
         Periodic.StrategyState memory strategyState = getStrategyState();
         Periodic.Redemption memory redemption = getStrategyRedemption(address(safe));
@@ -272,6 +315,8 @@ contract IntegrationTest is BaseIntegration {
 
         // assert shares queued for redemption are correct
         assertEq(strategyState.sharesQueuedForRedemption, lpBalanceAfterClaim);
+
+        console.log("Vault shares queued for redemption:  ", strategyState.sharesQueuedForRedemption / 1e18);
     }
 
     function _assertCloseRoundAndPayout() private {
@@ -296,13 +341,24 @@ contract IntegrationTest is BaseIntegration {
         vm.warp(strategyState.roundExpiration + 1);
 
         // WETH price ended at $300 with a call strike price of $200, so 
-        // $100 of WETH is entitled to the strategy, which is 0.333333 WETH
+        // $100 of WETH is entitled to the strategy, which is 0.333333 WETH.
         // There is also an underlying 1 WETH that was deposited, so total strategy
         // WETH holdings should be 1.33333 WETH
         assertEq(weth.balanceOf(address(strategy)), 1.333333333333333333 ether);
 
         // assert that the counterparty still has unredeemed oTokens
         assertEq(ERC20(shortPutOtoken).balanceOf(counterparty), 5e8);
+
+        console.log(
+            "WETH price ended at $300 with a call strike price of $200, so\n",
+            " $100 of WETH is entitled to the strategy, which is 0.333333 WETH.\n",
+            " There is also an underlying 1 WETH that was deposited, so total strategy\n",
+            " WETH holdings should be 1.33333 WETH"
+        );
+        console.log("");
+
+        console.log("Strategy WETH payout:                  ", weth.balanceOf(address(strategy)));
+        console.log("Counterparty short put oToken balance: ", ERC20(shortPutOtoken).balanceOf(counterparty) / 1e8, "oTokens");
     }
 
     function _assertRoundThreeState() private {
@@ -323,6 +379,12 @@ contract IntegrationTest is BaseIntegration {
         address proposedRedeemTo = address(vault);
         bytes memory proposedRedeemTransaction = abi.encodeCall(vault.redeem, ());
 
+        console.log("RIA proposes a transaction to complete the redemption of lp shares for the underlying asset");
+        console.log("Transaction: vault.redeem()");
+        console.log("Encoded transaction:");
+        console.logBytes(proposedRedeemTransaction);
+        console.log("");
+
         // client executes the redeem transaction
         vm.prank(client0);
         assertTrue(module.execTransaction(
@@ -331,6 +393,9 @@ contract IntegrationTest is BaseIntegration {
             proposedRedeemTransaction, 
             Enum.Operation.Call
         ));
+
+        console.log("Client executes transaction via module.execTransaction()");
+        console.log("");
 
         // get vault and strategy state
         Periodic.StrategyState memory strategyState = getStrategyState();
@@ -344,6 +409,15 @@ contract IntegrationTest is BaseIntegration {
         assertEq(safeWethBalance, 100.333333333333333333 ether);
         assertEq(lpTotalSupply, 0);
         assertEq(redemption.shares, 0);
+
+        console.log(
+            "The Gnosis Safe redeems the LP shares for 1.3333 WETH. Leaving the\n",
+            " safe with a total of 103.33333 WETH, which is a gain of 0.33333 WETH."
+        );
+        console.log("");
+
+        console.log("Vault assets unlocked for redemption:  ", strategyState.assetsUnlockedForRedemption);
+        console.log("Safe WETH Balance after redemption:    ", safeWethBalance);
     }
 
     function testIntegration() public {
@@ -363,6 +437,12 @@ contract IntegrationTest is BaseIntegration {
         // client deposits 1 WETH into the vault via the Greenwood Multisig
         _assertMultisigDeposit();
 
+        console.log("");
+        console.log("##############################################");
+        console.log("###       VAULT ROLLOVER TO ROUND 2        ###");
+        console.log("##############################################");
+        console.log("");
+
         // roll to round two
         _assertRollToNextRound(
             200e8,  // $200 long call strike
@@ -375,11 +455,29 @@ contract IntegrationTest is BaseIntegration {
         // check expected behavior after completing a roll to round two
         _assertRoundTwoState();
 
+        console.log("");
+        console.log("##############################################");
+        console.log("###       INITIATE REDEEM FROM VAULT       ###");
+        console.log("##############################################");
+        console.log("");
+
         // Initiate a redemption to eventually redeem shares for underlying asset
         _assertInitiateRedeem(); 
+
+        console.log("");
+        console.log("##############################################");
+        console.log("###          VAULT CLOSE ROUND 2           ###");
+        console.log("##############################################");
+        console.log("");
         
         // Close round two and calculate payouts for lp holders and the counterparty
         _assertCloseRoundAndPayout();
+
+        console.log("");
+        console.log("##############################################");
+        console.log("###       VAULT ROLLOVER TO ROUND 3        ###");
+        console.log("##############################################");
+        console.log("");
 
         // roll to round three
         _assertRollToNextRound(
@@ -392,6 +490,12 @@ contract IntegrationTest is BaseIntegration {
 
         // check expected behavior after completing a roll to round three
         _assertRoundThreeState();
+
+        console.log("");
+        console.log("##############################################");
+        console.log("###            REDEEM FROM VAULT           ###");
+        console.log("##############################################");
+        console.log("");
 
         // Redeem shares for underlying asset
         _assertRedeem();
