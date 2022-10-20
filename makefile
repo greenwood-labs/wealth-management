@@ -35,7 +35,7 @@ integration-test :; forge test \
 ################
 
 # deploy the multisig contracts on mainnet
-deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig \
+# deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig \
 	# -f ${RPC_MAINNET} \
 	# --slow \
 	# --private-key ${DEPLOYER_PRIVATE_KEY} \
