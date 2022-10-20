@@ -23,7 +23,7 @@ forge install
 
 Create a **.env** file and add an RPC endpoint ([**alchemy**](https://www.alchemy.com/) recommended):
 ```sh
-RPC_MAINNET=https://eth-mainnet.alchemyapi.io/v2/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+echo "RPC_MAINNET=https://eth-mainnet.alchemyapi.io/v2/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > .env
 ```
 
 Run the integration test:
