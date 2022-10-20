@@ -191,7 +191,6 @@ contract IntegrationTest is BaseIntegration {
         console.log("Long Call oToken: %s", address(strategy.longCallOtoken()));
         console.log("Long Put oToken:  %s", address(strategy.longPutOtoken()));
         console.log("Short Put oToken: %s", address(strategy.shortPutOtoken()));
-        console.log("");
     }
 
     function _assertRoundTwoState() private {
