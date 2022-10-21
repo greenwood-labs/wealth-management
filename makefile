@@ -26,29 +26,29 @@ integration-test :; forge test \
 ##################
 
 # Running a test node
-# node :; anvil \
-# 	--fork-url ${RPC_MAINNET} \
-# 	--base-fee ${BASE_FEE} 
+node :; anvil \
+	--fork-url ${RPC_MAINNET} \
+	--base-fee ${BASE_FEE} 
 
 ################
 ## DEPLOYMENT ##
 ################
 
 # deploy the multisig contracts on mainnet
-# deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig \
-	# -f ${RPC_MAINNET} \
-	# --slow \
-	# --private-key ${DEPLOYER_PRIVATE_KEY} \
-	# --with-gas-price ${GAS_PRICE} \
-	# --broadcast \
-	# --verify \
-	# -vvv
+deploy-multisig-mainnet :; forge script script/DeployMultisig.s.sol:DeployMultisig \
+	-f ${RPC_MAINNET} \
+	--slow \
+	--private-key ${DEPLOYER_PRIVATE_KEY} \
+	--with-gas-price ${GAS_PRICE} \
+	--broadcast \
+	--verify \
+	-vvv
 
 # deploy the multisig contract on a local forked mainnet node
 # make sure to run `make node` first
-# deploy-multisig-local :; forge script script/DeployMultisig.s.sol:DeployMultisig \
-# 	-f http://localhost:8545 \
-# 	--slow \
-# 	--private-key ${ANVIL_PRIVATE_KEY} \
-# 	--with-gas-price ${GAS_PRICE} \
-# 	--broadcast
+deploy-multisig-local :; forge script script/DeployMultisig.s.sol:DeployMultisig \
+	-f http://localhost:8545 \
+	--slow \
+	--private-key ${ANVIL_PRIVATE_KEY} \
+	--with-gas-price ${GAS_PRICE} \
+	--broadcast
