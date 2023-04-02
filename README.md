@@ -13,6 +13,8 @@
 >
 > Although contracts have been rigorously reviewed, this is **experimental software** and is provided on an "as is" and "as available" basis.
 > We **do not give any warranties** and **will not be liable for any loss** incurred through any use of this codebase.
+>
+> This codebase is property of Greenwood Labs, Inc. All rights reserved. Any use of this codebase without the express written consent of Greenwood Labs, Inc. is prohibited.
 
 ### Usage
 
@@ -59,7 +61,7 @@ Greenwood can be conceptualized as three layers: the interface layer, multisig l
 </p>
 
 ### Greenwood Interface
-The Greenwood interface provides a clean and friendly way of interacting with the Greenwood Multisig and Greenwood Vaults. Our design goal with this interface was to develop intuitive user flows and fuse the trustworthy, authoritative, feelings of traditional finance with the modern, ergonomic, feeling of FinTech. We are currently in the process of developing both desktop and mobile views for our interface in Javascript using the React.js framework. Along with React, we’re using (or planning to use) a number of other tools to improve performance and censorship-resilience. Some of the other components of the Greenwood frontend include:
+The Greenwood interface ([demo here](https://www.figma.com/proto/Yv042yboIY7wragoNQJlfp/Greenwood-(Prototype)?node-id=211-3207&starting-point-node-id=211%3A3207)) provides a clean and friendly way of interacting with the Greenwood Multisig and Greenwood Vaults. Our design goal with this interface was to develop intuitive user flows and fuse the trustworthy, authoritative, feelings of traditional finance with the modern, ergonomic, feeling of FinTech. We are currently in the process of developing both desktop and mobile views for our interface in Javascript using the React.js framework. Along with React, we’re using (or planning to use) a number of other tools to improve performance and censorship-resilience. Some of the other components of the Greenwood frontend include:
 
 - [WAGMI](https://wagmi.sh): A React hooks library simplifying Web3 related actions in the frontend (wallet connections, contract calls, etc). This library helps to speed up and simplify our frontend development experience.
 - [The Graph](https://thegraph.com/en/): An indexing protocol to query on-chain data with GraphQL using open APIs called ‘subgraphs’. This tool provides a better user experience when loading large amounts of data from our protocol.
